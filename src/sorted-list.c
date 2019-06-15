@@ -103,6 +103,7 @@ sorl_insert(sorl *s, void *item)
       /* Append. */
       s->tail->next = sn;
       sn->prev = s->tail;
+      sn->next = NULL;
       s->tail = sn;
     }
   }
