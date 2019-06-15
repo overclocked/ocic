@@ -126,7 +126,7 @@ SO_FILE  := lib$(PKG).so
 DYN_FILE := lib$(PKG).dylib
 
 AR_TARG  := $(BIN_DIR)/$(AR_FILE)
-SO_TARG  := $(BIN_DIR)/$(SO_FILE) 
+SO_TARG  := $(BIN_DIR)/$(SO_FILE)
 DYN_TARG := $(BIN_DIR)/$(DYN_FILE)
 
 SYS_ROOT    := /usr/local
@@ -166,9 +166,9 @@ DYN_FLAGS  := -dynamiclib -undefined suppress -flat_namespace
 ifeq ($(PLATFORM),$(APPLE))
     LIB_FLAGS   := -shared -undefined suppress -flat_namespace
     LINK_FLAGS  := -flat_namespace
-else 
+else
     LIB_FLAGS   := -shared
-    LINK_FLAGS  := 
+    LINK_FLAGS  :=
 endif
 
 COMP_FLAGS := -W -Wall -Wshadow -Wpointer-arith -Wcast-qual $(ADDTL_FLAGS)
@@ -179,14 +179,14 @@ LINK_LINE  := $(LINK_FLAGS) $(DEV_ENV_LIBS) -L$(DEV_LIB_DIR) $(LINK_DIRS) \
 
 # Set the environment variable DEBUG to true to build with debug flags.
 ifdef DEBUG
-  DBG_FLAGS := -ggdb 
-  D_FLAGS := $(D_FLAGS) -D DEBUG 
+  DBG_FLAGS := -ggdb
+  D_FLAGS := $(D_FLAGS) -D DEBUG
 else
   COMP_FLAGS := $(COMP_FLAGS) -O2
-  D_FLAGS := $(D_FLAGS) -D NDEBUG 
+  D_FLAGS := $(D_FLAGS) -D NDEBUG
 endif
 
-CC_EXEC   := $(CC) $(COMP_FLAGS) $(DBG_FLAGS) $(C_FLAGS) 
+CC_EXEC   := $(CC) $(COMP_FLAGS) $(DBG_FLAGS) $(C_FLAGS)
 
 # -------------------------------------------------------------------------- #
 # (6) System Build Rules                                                     #
@@ -214,13 +214,13 @@ env:
 	@if [ ! -d $(BIN_DIR) ];     then mkdir -p $(BIN_DIR);     fi;
 	@if [ ! -d $(TEST_DIR) ];    then mkdir -p $(TEST_DIR);    fi;
 
-clean: 
+clean:
 	@rm -rf $(BIN_DIR)/*
 	@rm -rf $(OBJ_DIR)/*
 	@rm -f $(TEST_DIR)/*.o
 	@rm -f $(TEST_APP)
 
-publish: 
+publish:
 	@echo "Exporting to dev environment"
 	@if [ -f $(BIN_APP) ];  then cp $(BIN_APP)  $(DEV_BIN_DIR)/$(PKG);      fi;
 	@if [ -f $(AR_TARG) ];  then cp $(AR_TARG)  $(DEV_LIB_DIR)/$(AR_FILE);  fi;
@@ -229,7 +229,7 @@ publish:
 	@if [ ! -d $(DEV_INC_DIR) ]; then mkdir -p $(DEV_INC_DIR); fi;
 	@cp $(SRC_DIR)/*.h $(DEV_INC_DIR)/
 
-unpublish: 
+unpublish:
 	@echo "Cleaning up dev environment"
 	@rm -f $(DEV_BIN_DIR)/$(PKG)
 	@rm -f $(DEV_LIB_DIR)/$(AR_FILE)
@@ -241,12 +241,12 @@ install-bin: app
 	@if [ -f $(BIN_APP) ]; then cp $(BIN_APP) $(SYS_BIN_DIR)/$(PKG); fi;
 
 # Assumes the developer has already built precisely those libraries to install
-install-lib: 
+install-lib:
 	@if [ -f $(AR_TARG) ];  then cp $(AR_TARG)  $(SYS_LIB_DIR)/$(AR_FILE);  fi;
 	@if [ -f $(SO_TARG) ];  then cp $(SO_TARG)  $(SYS_LIB_DIR)/$(SO_FILE);  fi;
 	@if [ -f $(DYN_TARG) ]; then cp $(DYN_TARG) $(SYS_LIB_DIR)/$(DYN_FILE); fi;
 	@if [ ! -d $(SYS_INC_DIR) ]; then mkdir -p $(SYS_INC_DIR); fi;
-	@cp $(SRC_DIR)/*.h $(SYS_INC_DIR) 
+	@cp $(SRC_DIR)/*.h $(SYS_INC_DIR)
 
 # Cleans up everything.
 uninstall:
@@ -269,7 +269,7 @@ tq: $(TEST_APP)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h
 	$(CC_EXEC) $(INCLUDES) -c $< -o $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c 
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC_EXEC) $(INCLUDES) -c $< -o $@
 
 $(BIN_APP): $(OBJ_FILES) $(BIN_SRC)
@@ -284,15 +284,15 @@ $(SO_TARG): $(OBJ_FILES)
 $(DYN_TARG): $(OBJ_FILES)
 ifeq ($(PLATFORM),$(APPLE))
 		$(CC_EXEC) $(DYN_FLAGS) $(OBJ_FILES) -o $@
-else 
+else
 		@echo "Build dylib files only on MacOS"
 endif
 
 $(TEST_DIR)/%.o: $(TEST_DIR)/%.c $(TEST_DIR)/%.h
-	$(CC_EXEC) $(INCLUDES) $(LINK_LINE) -c $< -o $@
+	$(CC_EXEC) $(INCLUDES) -c $< -o $@
 
 $(TEST_DIR)/%.o: $(TEST_DIR)/%.c
-	$(CC_EXEC) $(INCLUDES) $(LINK_LINE) -c $< -o $@
+	$(CC_EXEC) $(INCLUDES) -c $< -o $@
 
 $(TEST_APP): $(OBJ_FILES) $(TEST_OBJECTS) $(TEST_BIN_SRC)
 	$(CC_EXEC) $(OBJ_FILES) $(TEST_OBJECTS) $(TEST_BIN_SRC) $(INCLUDES) $(LINK_LINE) -o $@
@@ -300,4 +300,3 @@ $(TEST_APP): $(OBJ_FILES) $(TEST_OBJECTS) $(TEST_BIN_SRC)
 # -------------------------------------------------------------------------- #
 # True elegance is the manifestation of an independent mind.                 #
 # -------------------------------------------------------------------------- #
-
