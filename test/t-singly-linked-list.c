@@ -21,6 +21,8 @@
 
 /* Unit Tests */
 bool _test_create(bool);
+static void _fake_free(void*);
+bool _test_free(bool);
 bool _test_append_item(bool);
 bool _test_prepend_item(bool);
 bool _test_size(bool);
@@ -38,7 +40,7 @@ int test_singly_linked_list( bool );
 
 bool _test_create(bool quiet)
 {
-  sll *s = sll_create();
+  sll *s = sll_create(NULL);
   if (!s) {
     if (!quiet) printf("ERR: Creating SLL Failed: no object returned.\n");
     return false;
@@ -58,9 +60,51 @@ bool _test_create(bool quiet)
   return true;
 }
 
+static int free_ctr = 0;
+static void _fake_free(void *item) {
+  (void) item;
+  free_ctr++;
+}
+
+bool _test_free(bool quiet)
+{
+  sll *s = sll_create(NULL);
+  char* i1 = malloc(sizeof(char) * 10);
+  char* i2 = malloc(sizeof(char) * 10);
+  char* i3 = malloc(sizeof(char) * 10);
+  strncpy(i1, "aa", 3);
+  strncpy(i2, "bb", 3);
+  strncpy(i3, "cc", 3);
+  sll_append(s, i1);
+  sll_append(s, i2);
+  sll_append(s, i3);
+  sll_free(s);
+  /* Internal memory should still be intact, although how do I verify? */
+
+  free_ctr = 0;
+  s = sll_create(&_fake_free);
+  sll_append(s, i1);
+  sll_append(s, i2);
+  sll_append(s, i3);
+  sll_free(s);
+  if (free_ctr != 3) {
+    if (!quiet) printf("ERR: memory release func not called as expected.\n");
+    return false;
+  }
+  /* Internal memory should still be intact because we didn't actually free it. */
+
+  s = sll_create(&free);
+  sll_append(s, i1);
+  sll_append(s, i2);
+  sll_append(s, i3);
+  sll_free(s);
+  /* Now the memory should really be free, and nothing should SEGV. */
+  return true;
+}
+
 bool _test_append_item(bool quiet)
 {
-  sll *s = sll_create();
+  sll *s = sll_create(NULL);
   char* first = "Foo";
   char* second = "Bar";
   char* last   = "Rabbit";
@@ -78,7 +122,7 @@ bool _test_append_item(bool quiet)
 
 bool _test_prepend_item(bool quiet)
 {
-  sll *s = sll_create();
+  sll *s = sll_create(NULL);
   char* first = "Foo";
   char* second = "Bar";
   char* last   = "Rabbit";
@@ -96,7 +140,7 @@ bool _test_prepend_item(bool quiet)
 
 bool _test_size(bool quiet)
 {
-  sll *s = sll_create();
+  sll *s = sll_create(NULL);
   char* first = "Foo";
   char* second = "Bar";
   char* last   = "Rabbit";
@@ -112,7 +156,7 @@ bool _test_size(bool quiet)
 
 bool _test_first(bool quiet)
 {
-  sll *s = sll_create();
+  sll *s = sll_create(NULL);
   char* first = "Foo";
   char* second = "Bar";
   char* last   = "Rabbit";
@@ -135,7 +179,7 @@ bool _test_first(bool quiet)
 
 bool _test_last(bool quiet)
 {
-  sll *s = sll_create();
+  sll *s = sll_create(NULL);
   char* first = "Foo";
   char* second = "Bar";
   char* last   = "Rabbit";
@@ -158,7 +202,7 @@ bool _test_last(bool quiet)
 
 bool _test_next(bool quiet)
 {
-  sll *s = sll_create();
+  sll *s = sll_create(NULL);
   char* first = "Foo";
   char* second = "Bar";
   char* last   = "Rabbit";
@@ -206,7 +250,7 @@ void _process_item(void* item) {
 
 bool _test_iter(bool quiet)
 {
-  sll *s = sll_create();
+  sll *s = sll_create(NULL);
   char* first = "cow";
   char* second = "dog";
   char* last   = "foot";
@@ -226,7 +270,7 @@ bool _test_iter(bool quiet)
 
 bool _test_reverse_empty(bool quiet)
 {
-  sll *s = sll_create();
+  sll *s = sll_create(NULL);
   sll_reverse(s);
   if (sll_first(s) != NULL) {
     if (!quiet) printf("ERR: SLL - Reversing empty list failed.\n");
@@ -237,7 +281,7 @@ bool _test_reverse_empty(bool quiet)
 
 bool _test_reverse_single(bool quiet)
 {
-  sll *s = sll_create();
+  sll *s = sll_create(NULL);
   char* first = "bean";
   sll_append(s, first);
   sll_reverse(s);
@@ -251,7 +295,7 @@ bool _test_reverse_single(bool quiet)
 
 bool _test_reverse_several(bool quiet)
 {
-  sll *s = sll_create();
+  sll *s = sll_create(NULL);
   char* first = "foot";
   char* second = "dog";
   char* last   = "cow";

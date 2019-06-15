@@ -11,6 +11,7 @@ struct sll {
   sll_node* head;
   sll_node* tail;
   sll_node* curr;
+  object_destructor release;
 };
 
 sll_node* _sll_create_node( void* );
@@ -23,13 +24,14 @@ sll_node* _sll_create_node( void* item )
   return sn;
 }
 
-sll* sll_create()
+sll* sll_create( object_destructor r )
 {
   sll* s = malloc(sizeof(sll));
   s->size = 0;
   s->head = NULL;
   s->tail = NULL;
   s->curr = NULL;
+  s->release = r;
   return s;
 }
 
@@ -78,6 +80,7 @@ sll_free(sll *s )
   s->curr = s->head;
   while (s->curr) {
     s->curr = s->head->next;
+    if (s->release) s->release(s->head->item);
     free(s->head);
     s->head = s->curr;
   }
