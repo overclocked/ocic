@@ -13,7 +13,8 @@
    of fitness for any particular purpose. See the License for more details.
 \* ------------------------------------------------------------------------- */
 
-int test_singly_linked_lists( bool );
+int test_singly_linked_list( bool );
+int test_sorted_list( bool );
 int test_cmd_line_yn( bool );
 
 #endif

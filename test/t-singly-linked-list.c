@@ -34,7 +34,7 @@ bool _test_reverse_single(bool);
 bool _test_reverse_several(bool);
 
 /* Entry Point */
-int test_singly_linked_lists( bool );
+int test_singly_linked_list( bool );
 
 bool _test_create(bool quiet)
 {
@@ -171,7 +171,7 @@ bool _test_next(bool quiet)
   sll_prepend(s, first);
   sll_append(s, second);
   sll_prepend(s, last);
-  check = sll_next(s);
+  check = sll_first(s);
   if (check != last) {
     if (!quiet) printf("ERR: Testing next (iter1) invalid.\n");
     return false;
@@ -270,7 +270,7 @@ bool _test_reverse_several(bool quiet)
   return true;
 }
 
-int test_singly_linked_lists(bool quiet)
+int test_singly_linked_list(bool quiet)
 {
   int errs = 0;
   if (!_test_create(quiet)) errs++;

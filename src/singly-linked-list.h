@@ -5,6 +5,10 @@
      - Your basic singly linked list.
      - Unsorted
      - Prefix: sll
+   Maintains an internal pointer to a "current" item; getting the first
+   item resets the current pointer to the head; getting next advances and
+   then return the next item. Running the iterator always begins from the
+   beginning.      
    -------------------------------------------------------------------------
    LICENSE: This program is free software. You can modify it and/or re-
    distribute it under the terms of the Apache 2.0 License. You should have

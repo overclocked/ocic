@@ -11,7 +11,8 @@ int main(int c, char ** argv) {
 	int errs = 0;
 
   errs += test_cmd_line_yn(quiet);
-	errs += test_singly_linked_lists(quiet);
+	errs += test_singly_linked_list(quiet);
+	errs += test_sorted_list(quiet);
 
 	if (!quiet && errs > 0) {
 		printf("Total Unit Test Errors Reported: %d", errs);
