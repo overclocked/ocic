@@ -40,6 +40,12 @@ sorl_free(sorl*);
 void
 sorl_insert(sorl*, void*);
 
+/* remove an item
+ *   removes based on pointer comparison only.
+ */
+void 
+sorl_remove(sorl*, void*);
+
 /* get the size of the list */
 uint32_t
 sorl_size(sorl*);
