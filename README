@@ -38,7 +38,7 @@ Q: Where are you going with this?
 A: The desire is to simply add functionality as needed, and refine performance
    also as needed. The main thing is: it should work.
 
-Q: Are there any principles at work here?
+Q: What are the principles beind ocic?
 
 A: Simplicity, readability, correctness, reasonable efficiency. But this is not
    designed for hardcore performance. Rather, a "good enough and let the
