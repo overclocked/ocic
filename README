@@ -1,12 +1,14 @@
 .                                    ocic                                     .
-                                    v0.001
+                                    v0.003
 
 Welcome. This is an experimental attempt at a simpler approach to large project
 build frameworks for C applications and librares. It may also become the actual
 library of utility data structures and everyday reusable app functionality. The
 current list of functionality is:
 
- * cmd_line_yn - The basic proof of concept for the library, a yN with prompt.
+ * cmd-line-yn - The basic proof of concept for the library, a yN with prompt.
+ * singly-linked-list - Useful for short, one-way lists and job interviews.
+ * sorted-list - Doubly linked, sorted list.
 
 -------------------------------------------------------------------------------
 
@@ -22,27 +24,29 @@ Now you should have the ocic library, ready to link.
 
 -------------------------------------------------------------------------------
 
-TODO:
- [ ] Build a proper introduction to the conventions of the OC build env.
- [ ] Add more functionality to ocic as needed.
-
--------------------------------------------------------------------------------
-
 FAQ:
 
 Q: What is this?
 
 A: ocic is a general purpose library of fundamental code that rely on nothing
-   but standard C, and which might be useful for application development.
+   but standard C, and which might be useful for application development. Or,
+   more realistically, that's what it could be. For now it is a proof of concept
+   in developing best practices for a simple-but-flexible build environment.
 
 Q: Where are you going with this?
 
 A: The desire is to simply add functionality as needed, and refine performance
    also as needed. The main thing is: it should work.
 
+Q: Are there any principles at work here?
+
+A: Simplicity, readability, correctness, reasonable efficiency. But this is not
+   designed for hardcore performance. Rather, a "good enough and let the
+   compiler do its best" kind of performance.
+
 Q: Who is involved?
 
-A: At this time, Overclocked is a one-person team. Bluejack. 
+A: At this time, Overclocked is a one-person team. Bluejack.
 
 Q: Could I get involved?
 
@@ -54,5 +58,3 @@ A: OC = OverClocked. IC = "I see". It kind of sounds good.
    Hopefully, you *will* see!
 
 -------------------------------------------------------------------------------
-
-
