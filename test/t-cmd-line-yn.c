@@ -20,7 +20,7 @@ int test_cmd_line_yn( bool );
 int test_cmd_line_yn(bool quiet)
 {
   if (!quiet) {
-    printf("[OK]   : Command Line YN.\n");
+    printf("[OK]   : Command Line Y or N.\n");
   }
   return 0;
 }
