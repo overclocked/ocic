@@ -8,7 +8,7 @@
    Maintains an internal pointer to a "current" item; getting the first
    item resets the current pointer to the head; getting next advances and
    then return the next item. Running the iterator always begins from the
-   beginning.      
+   beginning.
    -------------------------------------------------------------------------
    LICENSE: This program is free software. You can modify it and/or re-
    distribute it under the terms of the Apache 2.0 License. You should have
@@ -22,11 +22,13 @@
 
 #include <stdint.h>
 
+#include "oc-mem.h"
+
 typedef struct sll sll;
 
 /* create and free */
 sll*
-sll_create( void );
+sll_create( object_destructor );
 
 void
 sll_free(sll*);

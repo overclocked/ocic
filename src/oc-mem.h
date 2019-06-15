@@ -1,5 +1,11 @@
+#ifndef _OC_MEM_H
+#define _OC_MEM_H
 /* ------------------------------------------------------------------------- *\
-   unit tests for singly linked lists
+   Overclocked Memory Support
+     - for those occasions when you want a data structure to take ownership
+       of the memory of items it contains, you can use an object destructor
+       to make it happen. Note that the standard free is a correct object
+       destructor, if you only need shallow memory release.
    -------------------------------------------------------------------------
    LICENSE: This program is free software. You can modify it and/or re-
    distribute it under the terms of the Apache 2.0 License. You should have
@@ -11,16 +17,6 @@
    of fitness for any particular purpose. See the License for more details.
 \* ------------------------------------------------------------------------- */
 
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
+typedef void(*object_destructor)(void*);
 
-int test_cmd_line_yn( bool );
-
-int test_cmd_line_yn(bool quiet)
-{
-  if (!quiet) {
-    printf("[OK]   : Command Line Y or N.\n");
-  }
-  return 0;
-}
+#endif
