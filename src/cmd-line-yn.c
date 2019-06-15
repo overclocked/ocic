@@ -20,7 +20,7 @@
 #include <stdio.h>
 
 bool yorn(const char* prompt) {
-	bool answer = false;
+	bool answer = false; /* Assume the negative. */
 	if (prompt) {
 		printf("%s", prompt);
 	}
