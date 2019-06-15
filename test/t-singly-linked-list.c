@@ -20,25 +20,25 @@
 #include "singly-linked-list.h"
 
 /* Unit Tests */
-bool _test_create(bool);
+static bool _test_create(bool);
 static void _fake_free(void*);
-bool _test_free(bool);
-bool _test_append_item(bool);
-bool _test_prepend_item(bool);
-bool _test_size(bool);
-bool _test_first(bool);
-bool _test_last(bool);
-bool _test_next(bool);
-bool _test_iter(bool);
-void _process_item(void*);
-bool _test_reverse_empty(bool);
-bool _test_reverse_single(bool);
-bool _test_reverse_several(bool);
+static bool _test_free(bool);
+static bool _test_append_item(bool);
+static bool _test_prepend_item(bool);
+static bool _test_size(bool);
+static bool _test_first(bool);
+static bool _test_last(bool);
+static bool _test_next(bool);
+static bool _test_iter(bool);
+static void _process_item(void*);
+static bool _test_reverse_empty(bool);
+static bool _test_reverse_single(bool);
+static bool _test_reverse_several(bool);
 
 /* Entry Point */
 int test_singly_linked_list( bool );
 
-bool _test_create(bool quiet)
+static bool _test_create(bool quiet)
 {
   sll *s = sll_create(NULL);
   if (!s) {
@@ -66,7 +66,7 @@ static void _fake_free(void *item) {
   free_ctr++;
 }
 
-bool _test_free(bool quiet)
+static bool _test_free(bool quiet)
 {
   sll *s = sll_create(NULL);
   char* i1 = malloc(sizeof(char) * 10);
@@ -102,7 +102,7 @@ bool _test_free(bool quiet)
   return true;
 }
 
-bool _test_append_item(bool quiet)
+static bool _test_append_item(bool quiet)
 {
   sll *s = sll_create(NULL);
   char* first = "Foo";
@@ -120,7 +120,7 @@ bool _test_append_item(bool quiet)
   return true;
 }
 
-bool _test_prepend_item(bool quiet)
+static bool _test_prepend_item(bool quiet)
 {
   sll *s = sll_create(NULL);
   char* first = "Foo";
@@ -138,7 +138,7 @@ bool _test_prepend_item(bool quiet)
   return true;
 }
 
-bool _test_size(bool quiet)
+static bool _test_size(bool quiet)
 {
   sll *s = sll_create(NULL);
   char* first = "Foo";
@@ -154,7 +154,7 @@ bool _test_size(bool quiet)
   return true;
 }
 
-bool _test_first(bool quiet)
+static bool _test_first(bool quiet)
 {
   sll *s = sll_create(NULL);
   char* first = "Foo";
@@ -177,7 +177,7 @@ bool _test_first(bool quiet)
   return true;
 }
 
-bool _test_last(bool quiet)
+static bool _test_last(bool quiet)
 {
   sll *s = sll_create(NULL);
   char* first = "Foo";
@@ -200,7 +200,7 @@ bool _test_last(bool quiet)
   return true;
 }
 
-bool _test_next(bool quiet)
+static bool _test_next(bool quiet)
 {
   sll *s = sll_create(NULL);
   char* first = "Foo";
@@ -241,14 +241,14 @@ bool _test_next(bool quiet)
 static int iter_errs = 0;
 static int iter_count = 0;
 static char* expect[] = {"cow", "dog", "foot"};
-void _process_item(void* item) {
+static void _process_item(void* item) {
   char* check = item;
   if (strcmp(check, expect[iter_count++]) != 0) {
     iter_errs++;
   }
 }
 
-bool _test_iter(bool quiet)
+static bool _test_iter(bool quiet)
 {
   sll *s = sll_create(NULL);
   char* first = "cow";
@@ -268,7 +268,7 @@ bool _test_iter(bool quiet)
   return true;
 }
 
-bool _test_reverse_empty(bool quiet)
+static bool _test_reverse_empty(bool quiet)
 {
   sll *s = sll_create(NULL);
   sll_reverse(s);
@@ -279,7 +279,7 @@ bool _test_reverse_empty(bool quiet)
   return true;
 }
 
-bool _test_reverse_single(bool quiet)
+static bool _test_reverse_single(bool quiet)
 {
   sll *s = sll_create(NULL);
   char* first = "bean";
@@ -293,7 +293,7 @@ bool _test_reverse_single(bool quiet)
   return true;
 }
 
-bool _test_reverse_several(bool quiet)
+static bool _test_reverse_several(bool quiet)
 {
   sll *s = sll_create(NULL);
   char* first = "foot";
@@ -318,6 +318,7 @@ int test_singly_linked_list(bool quiet)
 {
   int errs = 0;
   if (!_test_create(quiet)) errs++;
+  if (!_test_free(quiet)) errs++;
   if (!_test_append_item(quiet)) errs++;
   if (!_test_prepend_item(quiet)) errs++;
   if (!_test_size(quiet)) errs++;
