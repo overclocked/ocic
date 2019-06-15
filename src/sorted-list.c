@@ -106,6 +106,29 @@ sorl_insert(sorl *s, void *item)
   s->size++;
 }
 
+void
+sorl_remove(sorl *s, void *item)
+{
+  s->curr = s->head;
+  while(s->curr) {
+    if (s->curr->item == item) {
+
+      /* Adjust forward pointers. */
+      if (s->curr->prev) s->curr->prev->next = s->curr->next;
+      else s->head = s->curr->next;
+
+      /* Adjust reverse pointers. */
+      if (s->curr->next) s->curr->next->prev = s->curr->prev;
+      else s->tail = s->curr->prev;
+
+      free(s->curr);
+      s->curr = s->head;
+      break;
+    }
+    s->curr = s->curr->next;
+  }
+}
+
 /* get the size of the list */
 uint32_t
 sorl_size(sorl *s)

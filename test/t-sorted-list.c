@@ -22,6 +22,7 @@
 /* Unit Tests */
 static bool _test_sorl_create(bool);
 static bool _test_sorl_insert_item(bool);
+static bool _test_sorl_remove(bool);
 static bool _test_sorl_size(bool);
 static bool _test_sorl_first(bool);
 static bool _test_sorl_last(bool);
@@ -84,6 +85,49 @@ static bool _test_sorl_insert_item(bool quiet)
   }
   return true;
 }
+
+static bool _test_sorl_remove(bool quiet)
+{
+  sorl *s = sorl_create(&_sorl_compare);
+  char* it_1  = "aa";
+  char* it_2  = "bb";
+  char* it_3  = "cc";
+  char* check;
+  /* Remove on an empty list should be fine. */
+  sorl_remove(s, it_1);
+
+  /* Add some items. */
+  sorl_insert(s, it_1);
+  sorl_insert(s, it_3);
+  sorl_insert(s, it_2);
+
+  /* Remove and validate */
+
+  /* Remove first: */
+  sorl_remove(s, it_1);
+  check = sorl_first(s);
+  if (check != it_2) {
+    if (!quiet) printf("ERR: removing first item problem.");
+    return false;
+  }
+
+  sorl_remove(s, it_3);
+  check = sorl_last(s);
+  if (check != it_2) {
+    if (!quiet) printf("ERR: removing last item problem.");
+    return false;
+  }
+
+  sorl_remove(s, it_2);
+  check = sorl_first(s);
+  if (check != NULL) {
+    if (!quiet) printf("ERR: removing only item problem.");
+    return false;
+  }
+
+  return true;
+}
+
 
 static bool _test_sorl_size(bool quiet)
 {
@@ -336,6 +380,7 @@ int test_sorted_list(bool quiet)
   int errs = 0;
   if (!_test_sorl_create(quiet)) errs++;
   if (!_test_sorl_insert_item(quiet)) errs++;
+  if (!_test_sorl_remove(quiet)) errs++;
   if (!_test_sorl_size(quiet)) errs++;
   if (!_test_sorl_first(quiet)) errs++;
   if (!_test_sorl_last(quiet)) errs++;
