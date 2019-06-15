@@ -23,6 +23,9 @@
 
 #include <stdint.h>
 
+#include "oc-mem.h"
+#include "comparator.h"
+
 typedef struct sorl sorl;
 
 /* create:
@@ -31,7 +34,7 @@ typedef struct sorl sorl;
  *   1 on param 2 greater than param 1, and 0 if the two params are equal.
  */
 sorl*
-sorl_create( int(*)(void*,void*) );
+sorl_create( comparator, object_destructor );
 
 void
 sorl_free(sorl*);
@@ -43,7 +46,7 @@ sorl_insert(sorl*, void*);
 /* remove an item
  *   removes based on pointer comparison only.
  */
-void 
+void
 sorl_remove(sorl*, void*);
 
 /* get the size of the list */
