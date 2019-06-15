@@ -1,7 +1,7 @@
 #ifndef _CMD_LINE_YN_H
 #define _CMD_LINE_YN_H
 /* ------------------------------------------------------------------------- *\
-   Command Line YN 
+   Command Line YN
      - A dirt simple utility for grabbing a Yes/No response from the command
        line, which only considers Y or y to be Yes, and any other response
        to be No.
@@ -14,10 +14,14 @@
    DISCLAIMER: This program is distributed in the hope that it will be
    useful, but without any warrantee; without even the implied warantee
    of fitness for any particular purpose. See the License for more details.
-\* ------------------------------------------------------------------------- */  
+\* ------------------------------------------------------------------------- */
 
 #include <stdbool.h>
 
+/*
+ * yorn (YorN)
+ *   prompt is optional; if no prompt provided, none will be offered.
+ */
 bool yorn(const char* prompt);
 
 #endif
