@@ -27,19 +27,22 @@ struct sorl {
   sorl_node *head;
   sorl_node *tail;
   sorl_node *curr;
-  uint32_t size;
-  int(*compare)(void*,void*);
+  uint32_t   size;
+  comparator cmp;
+  object_destructor rel;
 };
 
 sorl*
-sorl_create( int(*compare)(void*,void*) )
+sorl_create( comparator compare, object_destructor release )
 {
   sorl *s = malloc(sizeof(sorl));
   s->head = NULL;
   s->tail = NULL;
   s->curr = NULL;
   s->size = 0;
-  s->compare = compare;
+  s->cmp  = compare;
+  s->rel  = release;
+
   return s;
 }
 
@@ -49,6 +52,7 @@ sorl_free(sorl *s)
   s->curr = s->head;
   while (s->curr) {
     s->head = s->curr->next;
+    if (s->rel) s->rel(s->curr->item);
     free(s->curr);
     s->curr = s->head;
   }
@@ -72,7 +76,7 @@ sorl_insert(sorl *s, void *item)
   } else {
     sorl_node *prev = NULL;
     while(s->curr) {
-      if (s->compare(item,s->curr->item) > 0) {
+      if (s->cmp(item,s->curr->item) > 0) {
         /* Advance */
         prev = s->curr;
         s->curr = s->curr->next;
@@ -99,6 +103,7 @@ sorl_insert(sorl *s, void *item)
       /* Append. */
       s->tail->next = sn;
       sn->prev = s->tail;
+      sn->next = NULL;
       s->tail = sn;
     }
   }

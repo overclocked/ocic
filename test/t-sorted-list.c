@@ -21,6 +21,8 @@
 
 /* Unit Tests */
 static bool _test_sorl_create(bool);
+static void _fake_free(void*);
+static bool _test_sorl_free(bool);
 static bool _test_sorl_insert_item(bool);
 static bool _test_sorl_remove(bool);
 static bool _test_sorl_size(bool);
@@ -45,10 +47,9 @@ static int _sorl_compare(void *one, void *two)
   return strcmp(a,b);
 }
 
-
 static bool _test_sorl_create(bool quiet)
 {
-  sorl *s = sorl_create(&_sorl_compare);
+  sorl *s = sorl_create(&_sorl_compare, NULL);
   if (!s) {
     if (!quiet) printf("ERR: Creating SORL Failed: no object returned.\n");
     return false;
@@ -68,9 +69,52 @@ static bool _test_sorl_create(bool quiet)
   return true;
 }
 
+static int free_ctr = 0;
+static void _fake_free(void* item)
+{
+  (void)item;
+  free_ctr++;
+}
+
+static bool _test_sorl_free(bool quiet)
+{
+  sorl *s = sorl_create(&_sorl_compare, NULL);
+  char* i1 = malloc(sizeof(char) * 10);
+  char* i2 = malloc(sizeof(char) * 10);
+  char* i3 = malloc(sizeof(char) * 10);
+  strncpy(i1, "aa", 3);
+  strncpy(i2, "bb", 3);
+  strncpy(i3, "cc", 3);
+  sorl_insert(s, i1);
+  sorl_insert(s, i2);
+  sorl_insert(s, i3);
+  sorl_free(s);
+  /* Internal memory should still be intact, although how do I verify? */
+
+  free_ctr = 0;
+  s = sorl_create(&_sorl_compare, &_fake_free);
+  sorl_insert(s, i1);
+  sorl_insert(s, i2);
+  sorl_insert(s, i3);
+  sorl_free(s);
+  if (free_ctr != 3) {
+    if (!quiet) printf("ERR: memory release func not called as expected.\n");
+    return false;
+  }
+  /* Internal memory should still be intact because we didn't actually free it. */
+
+  s = sorl_create(&_sorl_compare, &free);
+  sorl_insert(s, i1);
+  sorl_insert(s, i2);
+  sorl_insert(s, i3);
+  sorl_free(s);
+  /* Now the memory should really be free, and nothing should SEGV. */
+  return true;
+}
+
 static bool _test_sorl_insert_item(bool quiet)
 {
-  sorl *s = sorl_create(&_sorl_compare);
+  sorl *s = sorl_create(&_sorl_compare, NULL);
   char* it_1  = "aa";
   char* it_2  = "bb";
   char* it_3  = "cc";
@@ -88,7 +132,7 @@ static bool _test_sorl_insert_item(bool quiet)
 
 static bool _test_sorl_remove(bool quiet)
 {
-  sorl *s = sorl_create(&_sorl_compare);
+  sorl *s = sorl_create(&_sorl_compare, NULL);
   char* it_1  = "aa";
   char* it_2  = "bb";
   char* it_3  = "cc";
@@ -131,7 +175,7 @@ static bool _test_sorl_remove(bool quiet)
 
 static bool _test_sorl_size(bool quiet)
 {
-  sorl *s = sorl_create(&_sorl_compare);
+  sorl *s = sorl_create(&_sorl_compare, NULL);
   char* first = "Foo";
   char* second = "Bar";
   char* last   = "Rabbit";
@@ -147,7 +191,7 @@ static bool _test_sorl_size(bool quiet)
 
 static bool _test_sorl_first(bool quiet)
 {
-  sorl *s = sorl_create(&_sorl_compare);
+  sorl *s = sorl_create(&_sorl_compare, NULL);
   char* it_1  = "aa";
   char* it_2  = "bb";
   char* it_3  = "cc";
@@ -171,7 +215,7 @@ static bool _test_sorl_first(bool quiet)
 
 static bool _test_sorl_last(bool quiet)
 {
-  sorl *s = sorl_create(&_sorl_compare);
+  sorl *s = sorl_create(&_sorl_compare, NULL);
   char* it_1  = "aa";
   char* it_2  = "bb";
   char* it_3  = "cc";
@@ -195,7 +239,7 @@ static bool _test_sorl_last(bool quiet)
 
 static bool _test_sorl_next(bool quiet)
 {
-  sorl *s = sorl_create(&_sorl_compare);
+  sorl *s = sorl_create(&_sorl_compare, NULL);
   char* it_1  = "aa";
   char* it_2  = "bb";
   char* it_3  = "cc";
@@ -249,7 +293,7 @@ static bool _test_sorl_next(bool quiet)
 
 static bool _test_sorl_prev(bool quiet)
 {
-  sorl *s = sorl_create(&_sorl_compare);
+  sorl *s = sorl_create(&_sorl_compare, NULL);
   char* it_1  = "aa";
   char* it_2  = "bb";
   char* it_3  = "cc";
@@ -320,7 +364,7 @@ static void _process_sorl_item_rev(void* item) {
 
 static bool _test_sorl_iter(bool quiet)
 {
-  sorl *s = sorl_create(&_sorl_compare);
+  sorl *s = sorl_create(&_sorl_compare, NULL);
   int i1 = 10;
   int i2 = 20;
   int i3 = 30;
@@ -348,7 +392,7 @@ static bool _test_sorl_iter(bool quiet)
 
 static bool _test_sorl_rev_iter(bool quiet)
 {
-  sorl *s = sorl_create(&_sorl_compare);
+  sorl *s = sorl_create(&_sorl_compare, NULL);
   int i1 = 10;
   int i2 = 20;
   int i3 = 30;
@@ -379,6 +423,7 @@ int test_sorted_list(bool quiet)
 {
   int errs = 0;
   if (!_test_sorl_create(quiet)) errs++;
+  if (!_test_sorl_free(quiet)) errs++;
   if (!_test_sorl_insert_item(quiet)) errs++;
   if (!_test_sorl_remove(quiet)) errs++;
   if (!_test_sorl_size(quiet)) errs++;
