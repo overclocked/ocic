@@ -11,6 +11,7 @@ int main(int c, char ** argv) {
 	int errs = 0;
 
   errs += test_cmd_line_yn(quiet);
+	errs += test_hash_map(quiet);
 	errs += test_singly_linked_list(quiet);
 	errs += test_sorted_list(quiet);
 
