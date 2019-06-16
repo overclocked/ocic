@@ -18,5 +18,6 @@
 \* ------------------------------------------------------------------------- */
 
 typedef void(*object_destructor)(void*);
+typedef void(*map_destructor)(void*, void*);
 
 #endif
