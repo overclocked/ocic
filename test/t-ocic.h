@@ -16,6 +16,7 @@
 int test_hash_map( bool );
 int test_singly_linked_list( bool );
 int test_sorted_list( bool );
+int test_splay_tree( bool );
 int test_cmd_line_yn( bool );
 
 #endif
