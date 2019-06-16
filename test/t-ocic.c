@@ -14,9 +14,13 @@ int main(int c, char ** argv) {
 	errs += test_hash_map(quiet);
 	errs += test_singly_linked_list(quiet);
 	errs += test_sorted_list(quiet);
+	errs += test_splay_tree(quiet);
 
-	if (!quiet && errs > 0) {
-		printf("Total Unit Test Errors Reported: %d", errs);
+	if (!quiet) {
+		if (errs)
+			printf("Total Unit Test Errors Reported: %d\n", errs);
+		else
+			printf("Testing completed with NO errors.\n");
 	}
 
 	return errs;

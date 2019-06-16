@@ -1,5 +1,7 @@
 /* ------------------------------------------------------------------------- *\
-   unit tests for singly linked lists
+   Tests for Command Line Yes or No?
+     There are no tests. This cannot fail. It was a proof of concept for the
+     build environment itself.
    -------------------------------------------------------------------------
    LICENSE: This program is free software. You can modify it and/or re-
    distribute it under the terms of the Apache 2.0 License. You should have
