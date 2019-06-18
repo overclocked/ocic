@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include "splay-tree.h"
+#include <stdio.h>
 
 /* ------------------------------------------------------------------------- *\
    data structures
@@ -32,8 +33,11 @@ typedef struct splay_node {
   void   *v;
   struct  splay_node *l;
   struct  splay_node *r;
-  struct  splay_node *p;
 } splay_node;
+
+typedef struct splay_seq {
+  splay_node *ggp, *gp, *p;
+} splay_seq;
 
 struct splay {
   comparator      cmp;
@@ -48,16 +52,21 @@ struct splay {
 
 static void _free_tree(splay *s, splay_node *sn);
 static void _insert_node(splay *s, splay_node *curr, splay_node *ins);
-static void* _find(splay *s, splay_node *sn, void *seek);
-static void _splay(splay *s, splay_node *sn);
-static inline void _rotate_left(splay_node *p, splay_node *c);
-static inline void _rotate_right(splay_node *p, splay_node *c);
-static void _remove(splay *s, splay_node *sn);
+static void* _find(splay *s, splay_seq *seq, splay_node *sn, void *seek);
+static void _splay(splay *s, splay_seq *seq, splay_node *sn);
+static inline void _rotate_left(splay_node *gp, splay_node *p, splay_node *c);
+static inline void _rotate_right(splay_node *gp, splay_node *p, splay_node *c);
+static void _remove(splay *s, splay_node *p, splay_node *sn);
 static void _traverse(splay_node *, void(*)(void*,void*));
+static inline void _shift_seq(splay_seq *seq, splay_node *sn);
+static inline void _set_gp(splay_node *gp, splay_node *p, splay_node *sn);
+static void _print_tree(splay_node *sn, int depth, int dir);
 
 /* ------------------------------------------------------------------------- *\
    testing support declarations
 \* ------------------------------------------------------------------------- */
+
+void splay_print_tree(splay *s);
 
 /* ------------------------------------------------------------------------- *\
    private method implementations
@@ -92,7 +101,6 @@ _insert_node(splay *s, splay_node *curr, splay_node *ins)
       _insert_node(s, curr->l, ins);
     } else {
       curr->l = ins;
-      ins->p = curr;
       s->count++;
     }
   } else {
@@ -100,24 +108,32 @@ _insert_node(splay *s, splay_node *curr, splay_node *ins)
       _insert_node(s, curr->r, ins);
     } else {
       curr->r = ins;
-      ins->p = curr;
       s->count++;
     }
   }
   return;
 }
 
+static inline void
+_shift_seq(splay_seq *seq, splay_node *sn)
+{
+  seq->ggp = seq->gp;
+  seq->gp = seq->p;
+  seq->p = sn;
+}
+
 /* Could be recursive; but let's not be clever. */
 static void*
-_find(splay *s, splay_node *sn, void *seek)
+_find(splay *s, splay_seq *seq, splay_node *sn, void *seek)
 {
   int dir;
   while(sn) {
     dir = s->cmp(seek, sn->k);
     if (dir == 0) {
-      _splay(s, sn);
+      _splay(s, seq, sn);
       return sn->v;
     }
+    _shift_seq(seq, sn);
     if (dir < 0) {
       sn = sn->l;
     } else {
@@ -126,6 +142,13 @@ _find(splay *s, splay_node *sn, void *seek)
   }
   /* Not found. */
   return NULL;
+}
+
+static inline void
+_set_gp(splay_node *gp, splay_node *p, splay_node *sn)
+{
+  if (gp->l == p) gp->l = sn;
+  else            gp->r = sn;
 }
 
 /*  Rotate Right (C moves up and to the right; P moves down and to the right)
@@ -142,32 +165,17 @@ _find(splay *s, splay_node *sn, void *seek)
    V3 Moves from C->R to P->L
    GP->L moves from P to C
    C->R moves from V3 to P
-           (upward)
-   P->P is now C
-   V3->P is now P
-   C->P is now GP
 
  Note that the change is in effect regardless of whether P is l or r on GP,
  but we need to correct the correct direction on GP.
 
 */
-static inline void _rotate_right(splay_node *p, splay_node *c)
+static inline void _rotate_right(splay_node *gp, splay_node *p, splay_node *c)
 {
-    splay_node *gp = p->p; /* Could be null */
     splay_node *v3 = c->r; /* Could be null */
     c->r = p;
-    c->p = gp;
     p->l = v3;
-    p->p = c;
-    if (v3) v3->p = p;
-    /* reposition in parental structure (unless there is no grandparent) */
-    if (gp) {
-      if (gp->l == p) {
-        gp->l = c;
-      } else {
-        gp->r = c;
-      }
-    }
+    if (gp) _set_gp(gp, p, c);
 }
 
 /*  Rotate Left (C moves up and to the left; P moves down and to the left)
@@ -184,83 +192,63 @@ static inline void _rotate_right(splay_node *p, splay_node *c)
    V2 Moves from C->L to P->R
    GP->L moves from P to C (or GP->R; either way, correct accordingly.)
    C->L moves from V2 to P
-           (upward)
-   P->P is now C
-   V2->P is now P
-   C->P is now GP
 
 */
-static inline void _rotate_left(splay_node *p, splay_node *c)
+static inline void _rotate_left(splay_node *gp, splay_node *p, splay_node *c)
 {
-  splay_node *gp = p->p; /* Could be null */
   splay_node *v2 = c->l; /* Could be null */
   c->l = p;
-  c->p = gp;
   p->r = v2; /* was c */
-  p->p = c;
-  if (v2) v2->p = p;
-  /* reposition in parental structure (unless there is no grandparent) */
-  if (gp) {
-    if (gp->l == p) {
-      gp->l = c;
-    } else {
-      gp->r = c;
-    }
-  }
+  if (gp) _set_gp(gp, p, c);
 }
 
-static void _splay(splay *s, splay_node *sn)
+static void _splay(splay *s, splay_seq *seq, splay_node *sn)
 {
-  splay_node *p, *gp;
   /* No op if root. */
-  if (!sn->p) return;
+  if (!seq->p) return;
 
-  p = sn->p;
-  gp = p->p;
+  /* Are we going to set to root? */
+  if (!seq->ggp || !seq->gp) {
+    s->root = sn;
+  }
 
   /* Determine splay action */
-  if(!gp) {
+  if(!seq->gp) {
     /* Parent is root: simple case. */
-    if (p->l == sn) {
-      _rotate_right(p, sn);
+    if (seq->p->l == sn) {
+      _rotate_right(NULL, seq->p, sn);
     } else {
-      _rotate_left(p, sn);
+      _rotate_left(NULL, seq->p, sn);
     }
-    s->root = sn;
-  } else {
-    /* We have a grandparent; which also could be root. */
-    if (!gp->p) {
-      s->root = sn;
-    }
-    /* Determine rotation sequence */
-    if (p->l == sn && gp->l == p) {
-      _rotate_right(gp, p);
-      _rotate_right(p, sn);
-    } else if (p->r == sn && gp->r == p) {
-      _rotate_left(gp, p);
-      _rotate_left(p, sn);
-    } else if (p->l == sn) {
-      _rotate_right(p, sn);
-      _rotate_left(gp, sn);
-    } else {
-      _rotate_left(p, sn);
-      _rotate_right(gp, sn);
-    }
+    return;
   }
+
+  /* The two-step : rotation sequence varies */
+  /* PROBLEM!!! the top down sequences don't work because the hierarchy has
+     changed. */
+  if (seq->p->l == sn && seq->gp->l == seq->p) {
+    _rotate_right(seq->ggp, seq->gp, seq->p);
+    _rotate_right(seq->ggp, seq->p, sn);
+  } else if (seq->p->r == sn && seq->gp->r == seq->p) {
+    _rotate_left(seq->ggp, seq->gp, seq->p);
+    _rotate_left(seq->ggp, seq->p, sn);
+  } else if (seq->p->l == sn) {
+    _rotate_right(seq->gp, seq->p, sn);
+    _rotate_left(seq->ggp, seq->gp, sn);
+  } else {
+    _rotate_left(seq->gp, seq->p, sn);
+    _rotate_right(seq->ggp, seq->gp, sn);
+  }
+
 }
 
 void
-_remove(splay *s, splay_node *sn)
+_remove(splay *s, splay_node *p, splay_node *sn)
 {
-  splay_node *l, *r, *p, *orphan;
-    char *lk, *rk, *pk;
+  splay_node *l, *r, *orphan;
   if (!sn) return;
   l = sn->l;
   r = sn->r;
-  p = sn->p;
-    if (l) lk = l->k; else lk = "NA";
-    if (r) rk = r->k; else rk = "NA";
-    if (p) pk = p->k; else pk = "NA";
   orphan = NULL;
   if (!p) {
     /* Need to update root */
@@ -273,16 +261,8 @@ _remove(splay *s, splay_node *sn)
   if (p) {
     if (l) {
       p->l = l;
-      l->p = p;
     } else if (r) {
       p->l = r;
-      r->p = p;
-    }
-  } else {
-    if (l) {
-      l->p = NULL;
-    } else {
-      r->p = NULL;
     }
   }
 
@@ -290,7 +270,6 @@ _remove(splay *s, splay_node *sn)
   if (l) {
     orphan = l->r;
     l->r = r;
-    if (r) r->p = l;
   }
 
   /* Find a home for an orphan */
@@ -331,6 +310,37 @@ _traverse(splay_node *sn, void(*handle)(void*, void*))
   }
 }
 
+void
+_print_tree(splay_node *sn, int depth, int dir)
+{
+  if (!sn) return;
+  for (int i = 0; i < depth; i++) {
+    putchar('|');
+  }
+  if (dir == 0) {
+    putchar('*');
+  } else if (dir < 0) {
+    putchar('<');
+  } else {
+    putchar('>');
+  }
+  printf(" %s\n",(char*)sn->k);
+  depth++;
+  _print_tree(sn->l, depth, -1);
+  _print_tree(sn->r, depth, 1);
+}
+
+void
+splay_iter(splay *s, void(*handle)(void*, void*))
+{
+  _traverse(s->root, handle);
+}
+
+void
+splay_print_tree(splay *s) {
+  _print_tree(s->root, 0, 0);
+}
+
 /* ------------------------------------------------------------------------- *\
    testing support implementations
 \* ------------------------------------------------------------------------- */
@@ -368,7 +378,6 @@ splay_put(splay *s, void *key, void *val)
     splay_node *sn = malloc(sizeof(splay_node));
     sn->l = NULL;
     sn->r = NULL;
-    sn->p = NULL;
     sn->k = key;
     sn->v = val;
     if (!s->root) {
@@ -386,7 +395,8 @@ splay_get(splay *s, void *key)
   if (s->cmp(s->root->k, key) == 0) {
     return s->root->v;
   } else {
-    return _find(s, s->root, key);
+    splay_seq seq = {0};
+    return _find(s, &seq, s->root, key);
   }
 }
 
@@ -395,25 +405,21 @@ splay_remove(splay *s, void *key)
 {
   int dir;
   splay_node *sn = s->root;
+  splay_node *p = NULL;
   while(sn) {
     dir = s->cmp(key, sn->k);
     if (!dir) {
-      _remove(s, sn);
+      _remove(s, p, sn);
       s->count--;
       return;
     }
+    p = sn;
     if (dir < 0) {
       sn = sn->l;
     } else {
       sn = sn->r;
     }
   }
-}
-
-void
-splay_iter(splay *s, void(*handle)(void*, void*))
-{
-  _traverse(s->root, handle);
 }
 
 uint32_t

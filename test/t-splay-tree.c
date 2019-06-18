@@ -20,6 +20,8 @@
 
 int test_splay_tree(bool);
 
+void splay_print_tree(splay *s);
+
 /* ------------------------------------------------------------------------- *\
    Private Declarations
 \* ------------------------------------------------------------------------- */
@@ -34,7 +36,6 @@ static void _fake_free(void*, void*);
 /* debugging tool..
 static void _print_tree(void*, void*);
 */
-
 /* ------------------------------------------------------------------------- *\
    Private Implementations
 \* ------------------------------------------------------------------------- */
@@ -102,13 +103,13 @@ _test_put_get(bool quiet)
   char *k7 = "ggg";
   char *vv = "val";
   char *seek = "find me";
-  splay_put(s, k1, vv);
-  splay_put(s, k6, vv);
+  splay_put(s, k4, vv);
+  splay_put(s, k3, seek);
   splay_put(s, k5, vv);
   splay_put(s, k2, vv);
-  splay_put(s, k3, seek);
+  splay_put(s, k1, vv);
   splay_put(s, k7, vv);
-  splay_put(s, k4, vv);
+  splay_put(s, k6, vv);
   char* test_val = splay_get(s, "ccc");
   if (test_val != seek) {
     if (!quiet)
@@ -218,7 +219,7 @@ _test_rich_use(bool quiet)
   splay_get(s,keys[1]);
   if (splay_count(s) != 29) {
     if (!quiet)
-      printf("ERR: Splay Tree failed in mixed use. (count off 1)\n");
+      printf("ERR: Splay Tree failed in mixed use. (count off 1: %d)\n", splay_count(s));
       result = false;
   }
   splay_get(s,keys[5]);
